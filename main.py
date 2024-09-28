@@ -15,11 +15,11 @@ def updateSlider(object):
     object.slider_label.setText(f'Number of aliens: {object.slider.value()}')
 
 def addList(combobox):
-    combobox.addItem("STR_SECTOID_GRENADE")
-    combobox.addItem("STR_FLOATER_GRENADE")
-    combobox.addItem("STR_SNAKEMAN_GRENADE")
-    combobox.addItem("STR_MUTON_GRENADE")
-    combobox.addItem("STR_ETHEREAL_GRENADE")
+    with open('spawners.yml', 'r') as spawnerfile:
+        spawnerlist = yaml.safe_load(spawnerfile)
+
+        for spawners in spawnerlist:
+            combobox.addItem(str(spawners))
 
 
 

@@ -1,0 +1,56 @@
+    - id: 0
+      genUnitType: STR_PORTAL
+      genUnitArmor: PORTAL_ARMOR
+      faction: 1
+      status: 0
+      position: [0, 0, 0]
+      direction: 5
+      directionTurret: 5
+      tu: 0
+      health: 100
+      mana: 0
+      stunlevel: 0
+      energy: 0
+      morale: 100
+      armor: [0, 0, 0, 0, 0]
+      fatalWounds: [0, 0, 0, 0, 0, 0]
+      fire: 0
+      expBravery: 0
+      expReactions: 0
+      expFiring: 0
+      expThrowing: 0
+      expPsiSkill: 0
+      expPsiStrength: 0
+      expMana: 0
+      expMelee: 0
+      currStats:
+      stats:
+        tu: 1
+        stamina: 1
+        health: 100
+        bravery: 100
+        reactions: 1
+        firing: 1
+        throwing: 1
+        strength: 1
+        psiStrength: 1
+        psiSkill: 1
+        melee: 1
+      visible: false
+      turnsSinceSpotted: 255
+      turnsLeftSpottedForSnipers: 0
+      turnsSinceStunned: 255
+      rankInt: 0
+      moraleRestored: 0
+      AI: {fromNode: -1, toNode: -1, AIMode: 0, wasHitBy: []}
+      killedBy: 1
+      motionPoints: 0
+      activeHand: STR_RIGHT_HAND
+      tempUnitStatistics: ~
+
+    - id: 0
+      type: STR_SPAWNER_GRENADE
+      inventoryslot: STR_GROUND
+      position: [0, 0, 0]
+      fuseTimer: 0
+      fuseEnabed: true

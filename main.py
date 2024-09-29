@@ -58,7 +58,18 @@ def resetClick(list):
             object.lineY.setEnabled(True)
             object.lineZ.setEnabled(True)
             object.portalButton.setEnabled(True)
-
+            object.active = False
+def singleReset(object):
+    if object.active:
+        object.lineX.clear()
+        object.lineY.clear()
+        object.lineZ.clear()
+        object.lineX.setEnabled(True)
+        object.lineY.setEnabled(True)
+        object.lineZ.setEnabled(True)
+        object.portalButton.setEnabled(True)
+        object.slider.setValue(0)
+        object.active = False
 
 
 
@@ -68,7 +79,7 @@ class MainWindow(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle('OXCE Unit Spawner')
-        self.setGeometry(500, 200, 800, 200)
+        self.setGeometry(500, 200, 900, 200)
 
         self.savePath = QLineEdit(self,placeholderText = "insert savefile path", clearButtonEnabled=True)
 
@@ -135,14 +146,18 @@ class portal():
             self.combobox = QComboBox(window)
             addList(self.combobox)
 
+            self.resetButton =  QPushButton('Reset')
+            self.resetButton.clicked.connect(lambda: singleReset(self))
+
 
             layout.addWidget(self.lineX, gridY, 0, alignment=Qt.AlignmentFlag.AlignLeft)
             layout.addWidget(self.lineY, gridY, 1, alignment=Qt.AlignmentFlag.AlignLeft)
             layout.addWidget(self.lineZ, gridY, 2, alignment=Qt.AlignmentFlag.AlignLeft)
             layout.addWidget(self.portalButton, gridY, 3, alignment=Qt.AlignmentFlag.AlignLeft)
-            layout.addWidget(self.slider, gridY, 4, alignment=Qt.AlignmentFlag.AlignRight)
-            layout.addWidget(self.slider_label, gridY, 5, alignment=Qt.AlignmentFlag.AlignRight)
-            layout.addWidget(self.combobox, gridY, 6, alignment=Qt.AlignmentFlag.AlignRight)
+            layout.addWidget(self.slider, gridY, 4, alignment=Qt.AlignmentFlag.AlignLeft)
+            layout.addWidget(self.slider_label, gridY,5, alignment=Qt.AlignmentFlag.AlignLeft)
+            layout.addWidget(self.combobox, gridY,6, alignment=Qt.AlignmentFlag.AlignLeft)
+            layout.addWidget(self.resetButton, gridY,7, alignment=Qt.AlignmentFlag.AlignLeft)
 
 class yamlfunctions():
     def createPortal(name,x,y,z):

@@ -1,12 +1,11 @@
 import sys
-
-
 import yaml
-from PyQt6.QtGui import QIntValidator
 
+from PyQt6.QtGui import QIntValidator
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QWidget, QLineEdit, QComboBox, QSlider, QGridLayout, QLabel, QPushButton, \
     QMessageBox
+
 
 
 
@@ -20,9 +19,6 @@ def addList(combobox):
 
         for spawners in spawnerlist:
             combobox.addItem(str(spawners))
-
-
-
 
 def portalButtonClick(object):
     try:
@@ -58,7 +54,9 @@ def resetClick(list):
             object.lineY.setEnabled(True)
             object.lineZ.setEnabled(True)
             object.portalButton.setEnabled(True)
+            object.slider.setValue(0)
             object.active = False
+
 def singleReset(object):
     if object.active:
         object.lineX.clear()
@@ -89,20 +87,36 @@ class MainWindow(QWidget):
         layout = QGridLayout()
         self.setLayout(layout)
         layout.addWidget(self.savePath,0,0,1,3,alignment=Qt.AlignmentFlag.AlignTop)
-        layout.addWidget(self.spawnButton,6,4,1,3,alignment=Qt.AlignmentFlag.AlignBottom)
+        layout.addWidget(self.spawnButton,21,4,1,3,alignment=Qt.AlignmentFlag.AlignBottom)
 
-        alpha = portal(1, self, layout,"alpha")
-        bravo = portal(2, self, layout,"bravo")
-        charlie = portal(3, self, layout,"charlie")
-        delta = portal(4, self, layout, "delta")
-        echo = portal(5,self, layout, "echo")
+        a = portal(1, self, layout,"a")
+        b = portal(2, self, layout,"b")
+        c = portal(3, self, layout,"c")
+        d = portal(4, self, layout, "d")
+        e = portal(5,self, layout, "e")
+        f = portal(6,self, layout, "f")
+        g = portal(7,self, layout, "g")
+        h = portal(8,self, layout, "h")
+        i = portal(9,self, layout, "i")
+        j = portal(10,self, layout, "j")
+        k = portal(11,self, layout, "k")
+        m = portal(12,self, layout, "m")
+        n = portal(13,self, layout, "n")
+        o = portal(14,self, layout, "o")
+        p = portal(15,self, layout, "p")
+        q = portal(16,self, layout, "q")
+        r = portal(17,self, layout, "r")
+        s = portal(18,self, layout, "s")
+        t = portal(19,self, layout, "t")
+        u = portal(20,self, layout, "u")
 
-        portalList = [alpha,bravo,charlie,delta,echo]
+
+        portalList = [a,b,c,d,e,f,g,h,i,j,k,m,n,o,p,q,r,s,t,u]
         self.spawnButton.clicked.connect(lambda: yamlfunctions.spawnClick(portalList))
 
-        self.spawnButton = QPushButton('Reset Portals')
-        self.spawnButton.clicked.connect(lambda: resetClick(portalList))
-        layout.addWidget(self.spawnButton,0,3,alignment=Qt.AlignmentFlag.AlignTop)
+        self.resetButton = QPushButton('Reset Portals')
+        self.resetButton.clicked.connect(lambda: resetClick(portalList))
+        layout.addWidget(self.resetButton,0,3,alignment=Qt.AlignmentFlag.AlignTop)
 
         self.show()
 
@@ -136,7 +150,7 @@ class portal():
             self.portalButton.clicked.connect(lambda: portalButtonClick(self))
 
             self.slider = QSlider(Qt.Orientation.Horizontal, window)
-            self.slider.setRange(0, 20)
+            self.slider.setRange(0, 8)
             self.slider.setTickPosition(QSlider.TickPosition.TicksBelow)
 
             self.slider_label = QLabel('Number of aliens: 0', window)
@@ -229,11 +243,6 @@ class yamlfunctions():
                         yaml.dump_all(data, savefile)
                 except FileNotFoundError:
                     MainWindow.PathWarning(window)
-
-
-
-
-
 
 if __name__ == '__main__':
 

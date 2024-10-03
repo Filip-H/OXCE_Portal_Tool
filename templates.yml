@@ -27,7 +27,7 @@
       stats:
         tu: 1
         stamina: 1
-        health: 100
+        health: 600
         bravery: 100
         reactions: 1
         firing: 1

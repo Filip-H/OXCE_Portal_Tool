@@ -258,6 +258,7 @@ class yamlfunctions():
                     with  open(window.savePath.text(), 'w') as savefile:
                         yaml.Dumper.ignore_aliases = lambda *args: True
                         yaml.dump_all(data, savefile)
+                        objects.slider.setValue(0)
                 except FileNotFoundError:
                     MainWindow.PathWarning(window)
                     return
@@ -302,6 +303,7 @@ class yamlfunctions():
                         yaml.Dumper.ignore_aliases = lambda *args: True
                         yaml.dump_all(data, savefile)
                         playsound('Sounds/note.wav')
+                        object.slider.setValue(0)
                         return
                 except FileNotFoundError:
                     MainWindow.PathWarning(window)

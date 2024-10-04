@@ -1,11 +1,11 @@
 import sys
 import yaml
 
+from playsound import playsound
 from PyQt6.QtGui import QIntValidator
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QWidget, QLineEdit, QComboBox, QSlider, QGridLayout, QLabel, QPushButton, \
     QMessageBox
-
 
 
 
@@ -42,7 +42,7 @@ def portalButtonClick(object):
     object.lineZ.setEnabled(False)
     object.portalButton.setEnabled(False)
     object.active = True
-    yamlfunctions.createPortal(object.name,x,y,z)
+    yamlfunctions.createPortal(object.name,x,y,z, object)
 
 def resetClick(list):
     for object in list:
@@ -56,6 +56,8 @@ def resetClick(list):
             object.portalButton.setEnabled(True)
             object.slider.setValue(0)
             object.active = False
+    playsound('Sounds/note.wav')
+
 
 def singleReset(object):
     if object.active:
@@ -68,6 +70,10 @@ def singleReset(object):
         object.portalButton.setEnabled(True)
         object.slider.setValue(0)
         object.active = False
+        playsound('Sounds/note.wav')
+        return
+
+    playsound('Sounds/error.wav')
 
 
 
@@ -77,7 +83,7 @@ class MainWindow(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle('OXCE Unit Spawner')
-        self.setGeometry(500, 200, 900, 200)
+        self.setGeometry(500, 200, 1000, 200)
 
         self.savePath = QLineEdit(self,placeholderText = "insert savefile path", clearButtonEnabled=True)
 
@@ -163,6 +169,9 @@ class portal():
             self.resetButton =  QPushButton('Reset')
             self.resetButton.clicked.connect(lambda: singleReset(self))
 
+            self.singleSpawnButton = QPushButton('Spawn')
+            self.singleSpawnButton.clicked.connect(lambda: yamlfunctions.singleSpawn(self))
+
 
             layout.addWidget(self.lineX, gridY, 0, alignment=Qt.AlignmentFlag.AlignLeft)
             layout.addWidget(self.lineY, gridY, 1, alignment=Qt.AlignmentFlag.AlignLeft)
@@ -172,9 +181,10 @@ class portal():
             layout.addWidget(self.slider_label, gridY,5, alignment=Qt.AlignmentFlag.AlignLeft)
             layout.addWidget(self.combobox, gridY,6, alignment=Qt.AlignmentFlag.AlignLeft)
             layout.addWidget(self.resetButton, gridY,7, alignment=Qt.AlignmentFlag.AlignLeft)
+            layout.addWidget(self.singleSpawnButton, gridY, 8, alignment=Qt.AlignmentFlag.AlignLeft)
 
 class yamlfunctions():
-    def createPortal(name,x,y,z):
+    def createPortal(name,x,y,z, object):
         try:
             with open(window.savePath.text(), 'r') as savefile:
                 data = list(yaml.safe_load_all(savefile))
@@ -195,14 +205,20 @@ class yamlfunctions():
                     template['id']  = maxId
                     template['position'] = coords
                     units.append(template)
+
         except FileNotFoundError:
             MainWindow.PathWarning(window)
+            singleReset(object)
+            return
         try:
             with  open(window.savePath.text(), 'w') as savefile:
                 yaml.Dumper.ignore_aliases = lambda *args: True
                 yaml.dump_all(data, savefile)
+                playsound('Sounds/note.wav')
         except FileNotFoundError:
             MainWindow.PathWarning(window)
+            singleReset(object)
+            return
     def spawnClick(portals):
         for objects in portals:
             if objects.active:
@@ -237,13 +253,61 @@ class yamlfunctions():
                                 count = count + 1
                 except FileNotFoundError:
                     MainWindow.PathWarning(window)
+                    return
                 try:
                     with  open(window.savePath.text(), 'w') as savefile:
                         yaml.Dumper.ignore_aliases = lambda *args: True
                         yaml.dump_all(data, savefile)
                 except FileNotFoundError:
                     MainWindow.PathWarning(window)
+                    return
+        playsound('Sounds/note.wav')
 
+    def singleSpawn(object):
+            if object.active:
+                try:
+                    with open(window.savePath.text(), 'r') as savefile:
+                        data = list(yaml.safe_load_all(savefile))
+                        saveGame = data[1]
+                        battleGame = saveGame.get('battleGame')
+                        items = battleGame.get('items')
+                        idList = []
+                        for targets in items:
+                            targetId = targets.get('id')
+                            idList.append(targetId)
+                        maxId = max(idList)
+                        maxId = maxId + 1
+
+                        x = int(object.lineX.text())
+                        y = int(object.lineY.text())
+                        z = int(object.lineZ.text())
+                        coords = [x,y,z]
+
+                        with open('templates.yml', 'r') as templatefile:
+                            templatelist = yaml.safe_load(templatefile)
+                            template = templatelist[1]
+                            template['position'] = coords
+                            template['type'] = object.combobox.currentText()
+                            count = 0
+                            while count < object.slider.value():
+                                template['id'] = int(maxId)
+                                items.append(dict(template))
+                                maxId = maxId + 1
+                                count = count + 1
+                except FileNotFoundError:
+                    MainWindow.PathWarning(window)
+                    return
+                try:
+                    with  open(window.savePath.text(), 'w') as savefile:
+                        yaml.Dumper.ignore_aliases = lambda *args: True
+                        yaml.dump_all(data, savefile)
+                        playsound('Sounds/note.wav')
+                        return
+                except FileNotFoundError:
+                    MainWindow.PathWarning(window)
+                    return
+
+            playsound('Sounds/error.wav')
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)

@@ -21,28 +21,31 @@ def addList(combobox):
             combobox.addItem(str(spawners))
 
 def portalButtonClick(object):
-    try:
-        x = int(object.lineX.text())
-    except ValueError:
-        MainWindow.Coordswarning(window)
-        return
-    try:
-        y = int(object.lineY.text())
-    except ValueError:
-        MainWindow.Coordswarning(window)
-        return
-    try:
-        z = int(object.lineZ.text())
-    except ValueError:
-        MainWindow.Coordswarning(window)
-        return
+    if object.active == False:
+        try:
+            x = int(object.lineX.text())
+        except ValueError:
+            MainWindow.Coordswarning(window)
+            return
+        try:
+            y = int(object.lineY.text())
+        except ValueError:
+            MainWindow.Coordswarning(window)
+            return
+        try:
+            z = int(object.lineZ.text())
+        except ValueError:
+            MainWindow.Coordswarning(window)
+            return
 
-    object.lineX.setEnabled(False)
-    object.lineY.setEnabled(False)
-    object.lineZ.setEnabled(False)
-    object.portalButton.setEnabled(False)
-    object.active = True
-    yamlfunctions.createPortal(object.name,x,y,z, object)
+        object.lineX.setEnabled(False)
+        object.lineY.setEnabled(False)
+        object.lineZ.setEnabled(False)
+        object.portalButton.setEnabled(False)
+        object.active = True
+        yamlfunctions.createPortal(object.name,x,y,z, object)
+        return
+    playsound('Sounds/error.wav')
 
 def resetClick(list):
     for object in list:

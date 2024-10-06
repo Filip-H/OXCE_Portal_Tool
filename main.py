@@ -7,6 +7,9 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QWidget, QLineEdit, QComboBox, QSlider, QGridLayout, QLabel, QPushButton, \
     QMessageBox
 
+with open("config.yml", 'r') as configfile:
+    configdata = yaml.safe_load(configfile)
+    defaultpath = configdata['defaultPath']
 
 
 
@@ -75,7 +78,6 @@ def singleReset(object):
         object.active = False
         playsound('Sounds/note.wav')
         return
-
     playsound('Sounds/error.wav')
 
 
@@ -89,6 +91,7 @@ class MainWindow(QWidget):
         self.setGeometry(500, 200, 1000, 200)
 
         self.savePath = QLineEdit(self,placeholderText = "insert savefile path", clearButtonEnabled=True)
+        self.savePath.setText(defaultpath)
 
         self.spawnButton = QPushButton('Spawn Aliens')
 

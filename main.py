@@ -11,71 +11,70 @@ with open("config.yml", 'r') as configfile:
     configdata = yaml.safe_load(configfile)
     defaultpath = configdata['defaultPath']
 
+with open('spawners.yml', 'r') as spawnerfile:
+    spawnerlist = yaml.safe_load(spawnerfile)
 
-
-def updateSlider(object):
-    object.slider_label.setText(f'Number of aliens: {object.slider.value()}')
+def updateSlider(portal):
+    portal.slider_label.setText(f'Number of aliens: {portal.slider.value()}')
 
 def addList(combobox):
-    with open('spawners.yml', 'r') as spawnerfile:
-        spawnerlist = yaml.safe_load(spawnerfile)
 
         for spawners in spawnerlist:
             combobox.addItem(str(spawners))
 
-def portalButtonClick(object):
-    if object.active == False:
+def portalButtonClick(portal):
+    if portal.active == False:
         try:
-            x = int(object.lineX.text())
+            x = int(portal.lineX.text())
         except ValueError:
             MainWindow.Coordswarning(window)
             return
         try:
-            y = int(object.lineY.text())
+            y = int(portal.lineY.text())
         except ValueError:
             MainWindow.Coordswarning(window)
             return
         try:
-            z = int(object.lineZ.text())
+            z = int(portal.lineZ.text())
         except ValueError:
             MainWindow.Coordswarning(window)
             return
 
-        object.lineX.setEnabled(False)
-        object.lineY.setEnabled(False)
-        object.lineZ.setEnabled(False)
-        object.portalButton.setEnabled(False)
-        object.active = True
-        yamlfunctions.createPortal(object.name,x,y,z, object)
+        portal.lineX.setEnabled(False)
+        portal.lineY.setEnabled(False)
+        portal.lineZ.setEnabled(False)
+        portal.portalButton.setEnabled(False)
+        portal.active = True
+        yamlfunctions.createPortal(portal.name,x,y,z, portal)
         return
     playsound('Sounds/error.wav')
 
 def resetClick(list):
-    for object in list:
-        if object.active:
-            object.lineX.clear()
-            object.lineY.clear()
-            object.lineZ.clear()
-            object.lineX.setEnabled(True)
-            object.lineY.setEnabled(True)
-            object.lineZ.setEnabled(True)
-            object.portalButton.setEnabled(True)
-            object.slider.setValue(0)
-            object.active = False
+    for portal in list:
+        if portal.active:
+            portal.lineX.clear()
+            portal.lineY.clear()
+            portal.lineZ.clear()
+            portal.lineX.setEnabled(True)
+            portal.lineY.setEnabled(True)
+            portal.lineZ.setEnabled(True)
+            portal.portalButton.setEnabled(True)
+            portal.slider.setValue(0)
+            portal.active = False
     playsound('Sounds/note.wav')
 
 
-def singleReset(object):
-    if object.active:
-        object.lineX.clear()
-        object.lineY.clear()
-        object.lineZ.clear()
-        object.lineX.setEnabled(True)
-        object.lineY.setEnabled(True)
-        object.lineZ.setEnabled(True)
-        object.portalButton.setEnabled(True)
-        object.slider.setValue(0)
-        object.active = False
+def singleReset(portal):
+    if portal.active:
+        portal.lineX.clear()
+        portal.lineY.clear()
+        portal.lineZ.clear()
+        portal.lineX.setEnabled(True)
+        portal.lineY.setEnabled(True)
+        portal.lineZ.setEnabled(True)
+        portal.portalButton.setEnabled(True)
+        portal.slider.setValue(0)
+        portal.active = False
         playsound('Sounds/note.wav')
         return
     playsound('Sounds/error.wav')
@@ -132,10 +131,10 @@ class MainWindow(QWidget):
 
         self.show()
 
-    def Coordswarning(object):
-        QMessageBox.warning(object,'Error','Invalid Input')
-    def PathWarning(object):
-        QMessageBox.warning(object,'Error','Invalid Path')
+    def Coordswarning(window):
+        QMessageBox.warning(window,'Error','Invalid Input')
+    def PathWarning(window):
+        QMessageBox.warning(window,'Error','Invalid Path')
 
 class portal():
 
@@ -176,7 +175,7 @@ class portal():
             self.resetButton.clicked.connect(lambda: singleReset(self))
 
             self.singleSpawnButton = QPushButton('Spawn')
-            self.singleSpawnButton.clicked.connect(lambda: yamlfunctions.singleSpawn(self))
+            self.singleSpawnButton.clicked.connect(lambda: yamlfunctions.singleSpawn(self,True))
 
 
             layout.addWidget(self.lineX, gridY, 0, alignment=Qt.AlignmentFlag.AlignLeft)
@@ -190,7 +189,7 @@ class portal():
             layout.addWidget(self.singleSpawnButton, gridY, 8, alignment=Qt.AlignmentFlag.AlignLeft)
 
 class yamlfunctions():
-    def createPortal(name,x,y,z, object):
+    def createPortal(name,x,y,z, portal):
         try:
             with open(window.savePath.text(), 'r') as savefile:
                 data = list(yaml.safe_load_all(savefile))
@@ -214,7 +213,7 @@ class yamlfunctions():
 
         except FileNotFoundError:
             MainWindow.PathWarning(window)
-            singleReset(object)
+            singleReset(portal)
             return
         try:
             with  open(window.savePath.text(), 'w') as savefile:
@@ -223,55 +222,16 @@ class yamlfunctions():
                 playsound('Sounds/note.wav')
         except FileNotFoundError:
             MainWindow.PathWarning(window)
-            singleReset(object)
+            singleReset(portal)
             return
+
     def spawnClick(portals):
         for objects in portals:
-            if objects.active:
-                try:
-                    with open(window.savePath.text(), 'r') as savefile:
-                        data = list(yaml.safe_load_all(savefile))
-                        saveGame = data[1]
-                        battleGame = saveGame.get('battleGame')
-                        items = battleGame.get('items')
-                        idList = []
-                        for targets in items:
-                            targetId = targets.get('id')
-                            idList.append(targetId)
-                        maxId = max(idList)
-                        maxId = maxId + 1
-
-                        x = int(objects.lineX.text())
-                        y = int(objects.lineY.text())
-                        z = int(objects.lineZ.text())
-                        coords = [x,y,z]
-
-                        with open('templates.yml', 'r') as templatefile:
-                            templatelist = yaml.safe_load(templatefile)
-                            template = templatelist[1]
-                            template['position'] = coords
-                            template['type'] = objects.combobox.currentText()
-                            count = 0
-                            while count < objects.slider.value():
-                                template['id'] = int(maxId)
-                                items.append(dict(template))
-                                maxId = maxId + 1
-                                count = count + 1
-                except FileNotFoundError:
-                    MainWindow.PathWarning(window)
-                    return
-                try:
-                    with  open(window.savePath.text(), 'w') as savefile:
-                        yaml.Dumper.ignore_aliases = lambda *args: True
-                        yaml.dump_all(data, savefile)
-                        objects.slider.setValue(0)
-                except FileNotFoundError:
-                    MainWindow.PathWarning(window)
-                    return
+            yamlfunctions.singleSpawn(objects,False)
         playsound('Sounds/note.wav')
 
-    def singleSpawn(object):
-            if object.active:
+    def singleSpawn(portal, playSound):
+            if portal.active:
                 try:
                     with open(window.savePath.text(), 'r') as savefile:
                         data = list(yaml.safe_load_all(savefile))
@@ -285,37 +245,98 @@ class yamlfunctions():
                         maxId = max(idList)
                         maxId = maxId + 1
 
-                        x = int(object.lineX.text())
-                        y = int(object.lineY.text())
-                        z = int(object.lineZ.text())
+                        x = int(portal.lineX.text())
+                        y = int(portal.lineY.text())
+                        z = int(portal.lineZ.text())
                         coords = [x,y,z]
+                        blockedTiles = yamlfunctions.getBlockedTiles(data)
+                        spawnPos = yamlfunctions.getSpawnPos(coords)
+
+                        blockedSpawns = 0
+
+                        for tiles in spawnPos:
+                            if tiles in blockedTiles:
+                                blockedSpawns = blockedSpawns + 1
+
+                        blockedSpawns = blockedSpawns + yamlfunctions.getLiveGrenadeCount(data, coords)
+                        freeSpawns = 8-blockedSpawns
+
 
                         with open('templates.yml', 'r') as templatefile:
                             templatelist = yaml.safe_load(templatefile)
                             template = templatelist[1]
                             template['position'] = coords
-                            template['type'] = object.combobox.currentText()
+                            template['type'] = portal.combobox.currentText()
                             count = 0
-                            while count < object.slider.value():
+                            while count < portal.slider.value():
                                 template['id'] = int(maxId)
+                                if count >= freeSpawns:
+                                    template['fuseTimer'] = 2
                                 items.append(dict(template))
                                 maxId = maxId + 1
                                 count = count + 1
+
                 except FileNotFoundError:
                     MainWindow.PathWarning(window)
                     return
+
                 try:
                     with  open(window.savePath.text(), 'w') as savefile:
                         yaml.Dumper.ignore_aliases = lambda *args: True
                         yaml.dump_all(data, savefile)
-                        playsound('Sounds/note.wav')
-                        object.slider.setValue(0)
+                        if playSound:
+                            playsound('Sounds/note.wav')
+                        portal.slider.setValue(0)
                         return
                 except FileNotFoundError:
                     MainWindow.PathWarning(window)
                     return
+            if playSound:
+                playsound('Sounds/error.wav')
 
-            playsound('Sounds/error.wav')
+    def getSpawnPos(coords):
+            referencePos = list(coords)
+            referencePos[0] = referencePos[0] -1
+            referencePos[1] = referencePos[1] -1
+            spawnPos = []
+            for i in range(0, 3):
+                for k in range(0, 3):
+                    pos = list(referencePos)
+                    pos[0] = pos[0] + i
+                    pos[1] = pos[1] + k
+                    spawnPos.append(list(pos))
+
+            spawnPos.remove(list(coords))
+
+            return spawnPos
+
+    def getLiveGrenadeCount(data, coords):
+
+        saveGame = data[1]
+        battleGame = saveGame.get('battleGame')
+        items = battleGame.get('items')
+        liveGrenadeCount = 0
+        for grenades in items:
+            if grenades['type'] in spawnerlist:
+                if grenades['fuseTimer'] == 0:
+                    position = grenades['position']
+                    if position == coords:
+                        liveGrenadeCount = liveGrenadeCount + 1
+        return liveGrenadeCount
+    def getBlockedTiles(data):
+            saveGame = data[1]
+            battleGame = saveGame.get('battleGame')
+
+            blockedTiles = []
+            units = battleGame.get('units')
+            for blocks in units:
+                position = blocks['position']
+                blockedTiles.append(list(position))
+            return blockedTiles
+
+
+
+
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)

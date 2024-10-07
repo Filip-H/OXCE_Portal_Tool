@@ -7,7 +7,7 @@
       direction: 5
       directionTurret: 5
       tu: 0
-      health: 100
+      health: 300
       mana: 0
       stunlevel: 0
       energy: 0
@@ -27,7 +27,7 @@
       stats:
         tu: 1
         stamina: 1
-        health: 600
+        health: 300
         bravery: 100
         reactions: 1
         firing: 1

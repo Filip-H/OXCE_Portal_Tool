@@ -54,3 +54,7 @@
       position: [0, 0, 0]
       fuseTimer: 0
       fuseEnabed: true
+      tags:
+        GrenX: 0
+        GrenY: 0
+        GrenZ: 0

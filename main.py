@@ -267,6 +267,10 @@ class yamlfunctions():
                             template = templatelist[1]
                             template['position'] = coords
                             template['type'] = portal.combobox.currentText()
+                            tags = template['tags']
+                            tags['GrenX'] = coords[0]
+                            tags['GrenY'] = coords[1]
+                            tags['GrenZ'] = coords[2]
                             count = 0
                             while count < portal.slider.value():
                                 template['id'] = int(maxId)

@@ -47,6 +47,8 @@
       motionPoints: 0
       activeHand: STR_RIGHT_HAND
       tempUnitStatistics: ~
+      tags:
+        PortalNo: 0
 
     - id: 0
       type: STR_SPAWNER_GRENADE
@@ -55,6 +57,7 @@
       fuseTimer: 0
       fuseEnabed: true
       tags:
+        PortalId: 0
         GrenX: 0
         GrenY: 0
         GrenZ: 0

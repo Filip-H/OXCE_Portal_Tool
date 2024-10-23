@@ -7,12 +7,35 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QWidget, QLineEdit, QComboBox, QSlider, QGridLayout, QLabel, QPushButton, \
     QMessageBox
 
+
+
 with open("config.yml", 'r') as configfile:
     configdata = yaml.safe_load(configfile)
     defaultpath = configdata['defaultPath']
 
+with open("translation.yml", 'r') as translationfile:
+    translations = yaml.safe_load(translationfile)
+
 with open('spawners.yml', 'r') as spawnerfile:
-    spawnerlist = yaml.safe_load(spawnerfile)
+    spawners = yaml.safe_load(spawnerfile)
+    spawnerlist = []
+    try:
+        spawnerlist.extend(spawners['single'])
+    except TypeError:
+        print('no single spawners')
+
+    try:
+        spawnerlist.extend(spawners['recurring'])
+    except TypeError:
+        print('no recurring spawners')
+
+    for x in range(0,len(spawnerlist)):
+        if spawnerlist[x] in translations:
+            spawnerlist[x] = translations[spawnerlist[x]]
+    reversetranslation = dict(translations)
+    reversetranslation = {v: k for k, v in reversetranslation.items()}
+
+
 
 def updateSlider(portal):
     portal.slider_label.setText(f'Number of aliens: {portal.slider.value()}')
@@ -61,6 +84,8 @@ def resetClick(list):
             portal.portalButton.setEnabled(True)
             portal.slider.setValue(0)
             portal.active = False
+            portal.id = 0
+    window.portalNumber = 0
     playsound('Sounds/note.wav')
 
 
@@ -75,6 +100,7 @@ def singleReset(portal):
         portal.portalButton.setEnabled(True)
         portal.slider.setValue(0)
         portal.active = False
+        portal.id = 0
         playsound('Sounds/note.wav')
         return
     playsound('Sounds/error.wav')
@@ -93,6 +119,7 @@ class MainWindow(QWidget):
         self.savePath.setText(defaultpath)
 
         self.spawnButton = QPushButton('Spawn Aliens')
+        self.portalNumber = 0
 
 
         layout = QGridLayout()
@@ -145,6 +172,7 @@ class portal():
             self.layout = layout
             self.name = name
             self.active = False
+            self.id = 0
 
             onlyInt = QIntValidator()
             onlyInt.setRange(0, 999)
@@ -207,8 +235,12 @@ class yamlfunctions():
                 with open('templates.yml','r') as templatefile:
                     templatelist = yaml.safe_load(templatefile)
                     template = templatelist[0]
+                    tags = template['tags']
+                    portal.id = maxId
                     template['id']  = maxId
                     template['position'] = coords
+                    tags['PortalNo'] = window.portalNumber
+                    window.portalNumber = window.portalNumber + 1
                     units.append(template)
 
         except FileNotFoundError:
@@ -266,19 +298,38 @@ class yamlfunctions():
                             templatelist = yaml.safe_load(templatefile)
                             template = templatelist[1]
                             template['position'] = coords
-                            template['type'] = portal.combobox.currentText()
+                            selectedType = portal.combobox.currentText()
+                            if selectedType in reversetranslation.keys():
+                                selectedType = reversetranslation[selectedType]
+                            template['type'] = selectedType
                             tags = template['tags']
                             tags['GrenX'] = coords[0]
                             tags['GrenY'] = coords[1]
                             tags['GrenZ'] = coords[2]
                             count = 0
                             while count < portal.slider.value():
-                                template['id'] = int(maxId)
-                                if count >= freeSpawns:
-                                    template['fuseTimer'] = 2
-                                items.append(dict(template))
-                                maxId = maxId + 1
+                                if portal.combobox.currentText() in spawners['recurring']:
+                                    metaSave = data[0]
+                                    turn = int(metaSave['turn']) % 10
+                                    for grenadeCount in range (0,3):
+                                        template['id'] = int(maxId)
+                                        print(grenadeCount)
+                                        if count >= freeSpawns and grenadeCount == 0:
+                                            template['fuseTimer'] = 2
+                                        elif grenadeCount != 0:
+                                            template['fuseTimer'] = (2*10*grenadeCount)-(turn*2)
+                                        tags['PortalId'] = portal.id
+                                        items.append(dict(template))
+                                        maxId = maxId + 1
+                                else:
+                                    template['id'] = int(maxId)
+                                    if count >= freeSpawns:
+                                        template['fuseTimer'] = 2
+                                    tags['PortalId'] = portal.id
+                                    items.append(dict(template))
+                                    maxId = maxId + 1
                                 count = count + 1
+                                template['fuseTimer'] = 0
 
                 except FileNotFoundError:
                     MainWindow.PathWarning(window)

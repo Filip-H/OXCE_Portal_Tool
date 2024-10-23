@@ -7,7 +7,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QWidget, QLineEdit, QComboBox, QSlider, QGridLayout, QLabel, QPushButton, \
     QMessageBox
 
-
+colourlist = ['QPushButton {background-color: blue;}','QPushButton {background-color: red;}','QPushButton {background-color: green;}','QPushButton {background-color: purple;}','QPushButton {background-color: brown;}','QPushButton {background-color: gray;}','QPushButton {background-color: black;}']
 
 with open("config.yml", 'r') as configfile:
     configdata = yaml.safe_load(configfile)
@@ -85,6 +85,8 @@ def resetClick(list):
             portal.slider.setValue(0)
             portal.active = False
             portal.id = 0
+            portal.colorNumber = 0
+            portal.singleSpawnButton.setStyleSheet('QPushButton {background-color: white;}')
     window.portalNumber = 0
     playsound('Sounds/note.wav')
 
@@ -101,7 +103,9 @@ def singleReset(portal):
         portal.slider.setValue(0)
         portal.active = False
         portal.id = 0
+        portal.colorNumber = 0
         playsound('Sounds/note.wav')
+        portal.singleSpawnButton.setStyleSheet('QPushButton {background-color: white;}')
         return
     playsound('Sounds/error.wav')
 
@@ -173,6 +177,7 @@ class portal():
             self.name = name
             self.active = False
             self.id = 0
+            self.colorNumber = 0
 
             onlyInt = QIntValidator()
             onlyInt.setRange(0, 999)
@@ -240,6 +245,8 @@ class yamlfunctions():
                     template['id']  = maxId
                     template['position'] = coords
                     tags['PortalNo'] = window.portalNumber
+                    portal.colorNumber = int(window.portalNumber % 7)
+                    portal.singleSpawnButton.setStyleSheet(colourlist[portal.colorNumber])
                     window.portalNumber = window.portalNumber + 1
                     units.append(template)
 

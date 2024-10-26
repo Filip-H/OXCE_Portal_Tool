@@ -1,4 +1,6 @@
 import sys
+from http.cookiejar import debug
+
 import yaml
 
 from playsound import playsound
@@ -28,7 +30,7 @@ with open('spawners.yml', 'r') as spawnerfile:
         spawnerlist.extend(spawners['recurring'])
     except TypeError:
         print('no recurring spawners')
-
+    safeSpawnerList = list(spawnerlist)
     for x in range(0,len(spawnerlist)):
         if spawnerlist[x] in translations:
             spawnerlist[x] = translations[spawnerlist[x]]
@@ -299,6 +301,7 @@ class yamlfunctions():
 
                         blockedSpawns = blockedSpawns + yamlfunctions.getLiveGrenadeCount(data, coords)
                         freeSpawns = 8-blockedSpawns
+                        print(freeSpawns)
 
 
                         with open('templates.yml', 'r') as templatefile:
@@ -315,10 +318,10 @@ class yamlfunctions():
                             tags['GrenZ'] = coords[2]
                             count = 0
                             while count < portal.slider.value():
-                                if portal.combobox.currentText() in spawners['recurring']:
+                                if selectedType in spawners['recurring']:
                                     metaSave = data[0]
                                     turn = int(metaSave['turn']) % 10
-                                    for grenadeCount in range (0,3):
+                                    for grenadeCount in range (0,50):
                                         template['id'] = int(maxId)
                                         print(grenadeCount)
                                         if count >= freeSpawns and grenadeCount == 0:
@@ -330,6 +333,7 @@ class yamlfunctions():
                                         maxId = maxId + 1
                                 else:
                                     template['id'] = int(maxId)
+                                    print(freeSpawns)
                                     if count >= freeSpawns:
                                         template['fuseTimer'] = 2
                                     tags['PortalId'] = portal.id
@@ -379,7 +383,8 @@ class yamlfunctions():
         items = battleGame.get('items')
         liveGrenadeCount = 0
         for grenades in items:
-            if grenades['type'] in spawnerlist:
+
+            if grenades['type'] in safeSpawnerList:
                 if grenades['fuseTimer'] == 0:
                     position = grenades['position']
                     if position == coords:

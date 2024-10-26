@@ -301,7 +301,7 @@ class yamlfunctions():
 
                         blockedSpawns = blockedSpawns + yamlfunctions.getLiveGrenadeCount(data, coords)
                         freeSpawns = 8-blockedSpawns
-                        print(freeSpawns)
+
 
 
                         with open('templates.yml', 'r') as templatefile:
@@ -323,7 +323,6 @@ class yamlfunctions():
                                     turn = int(metaSave['turn']) % 10
                                     for grenadeCount in range (0,50):
                                         template['id'] = int(maxId)
-                                        print(grenadeCount)
                                         if count >= freeSpawns and grenadeCount == 0:
                                             template['fuseTimer'] = 2
                                         elif grenadeCount != 0:
@@ -333,7 +332,6 @@ class yamlfunctions():
                                         maxId = maxId + 1
                                 else:
                                     template['id'] = int(maxId)
-                                    print(freeSpawns)
                                     if count >= freeSpawns:
                                         template['fuseTimer'] = 2
                                     tags['PortalId'] = portal.id
@@ -385,10 +383,13 @@ class yamlfunctions():
         for grenades in items:
 
             if grenades['type'] in safeSpawnerList:
-                if grenades['fuseTimer'] == 0:
-                    position = grenades['position']
-                    if position == coords:
-                        liveGrenadeCount = liveGrenadeCount + 1
+                try:
+                    if grenades['fuseTimer'] == 0:
+                        position = grenades['position']
+                        if position == coords:
+                            liveGrenadeCount = liveGrenadeCount + 1
+                except KeyError:
+                    print("No Fuse Active")
         return liveGrenadeCount
     def getBlockedTiles(data):
             saveGame = data[1]

@@ -1,5 +1,4 @@
 import sys
-from http.cookiejar import debug
 
 import yaml
 
@@ -106,8 +105,8 @@ def singleReset(portal):
         portal.active = False
         portal.id = 0
         portal.colorNumber = 0
-        playsound('Sounds/note.wav')
         portal.singleSpawnButton.setStyleSheet('QPushButton {background-color: white;}')
+        yamlfunctions.moveGrenades(portal)
         return
     playsound('Sounds/error.wav')
 
@@ -155,11 +154,11 @@ class MainWindow(QWidget):
         u = portal(20,self, layout, "u")
 
 
-        portalList = [a,b,c,d,e,f,g,h,i,j,k,m,n,o,p,q,r,s,t,u]
-        self.spawnButton.clicked.connect(lambda: yamlfunctions.spawnClick(portalList))
+        self.portalList = [a,b,c,d,e,f,g,h,i,j,k,m,n,o,p,q,r,s,t,u]
+        self.spawnButton.clicked.connect(lambda: yamlfunctions.spawnClick(self.portalList))
 
         self.resetButton = QPushButton('Reset Portals')
-        self.resetButton.clicked.connect(lambda: resetClick(portalList))
+        self.resetButton.clicked.connect(lambda: resetClick(self.portalList))
         layout.addWidget(self.resetButton,0,3,alignment=Qt.AlignmentFlag.AlignTop)
 
         self.show()
@@ -168,6 +167,8 @@ class MainWindow(QWidget):
         QMessageBox.warning(window,'Error','Invalid Input')
     def PathWarning(window):
         QMessageBox.warning(window,'Error','Invalid Path')
+    def ResetInform(window,resetNumber):
+        QMessageBox.information(window,'Portal Reset',f'{resetNumber} grenades have been moved')
 
 class portal():
 
@@ -401,6 +402,53 @@ class yamlfunctions():
                 position = blocks['position']
                 blockedTiles.append(list(position))
             return blockedTiles
+
+    def moveGrenades(self):
+        try:
+            with open(window.savePath.text(), 'r') as savefile:
+                data = list(yaml.safe_load_all(savefile))
+                saveGame = data[1]
+                battleGame = saveGame.get('battleGame')
+                items = battleGame.get('items')
+
+                movedGrenades = 0
+
+                for portals in window.portalList:
+                    if portals.active:
+                        for grenades in items:
+                            if grenades['type'] in safeSpawnerList:
+                                if 'fuseTimer' not in grenades.keys():
+                                    x = int(portals.lineX.text())
+                                    y = int(portals.lineY.text())
+                                    z = int(portals.lineZ.text())
+                                    coords = [x, y, z]
+                                    tags = grenades['tags']
+                                    tags['PortalId'] = portals.id
+                                    try:
+                                        grenades['fuseTimer'] = int(tags['PassFuse'])
+                                    except KeyError:
+                                        grenades['fuseTimer'] = 0
+                                    grenades['position'] = coords
+                                    movedGrenades = movedGrenades + 1
+
+
+
+                        MainWindow.ResetInform(window,movedGrenades)
+                        break
+
+
+
+
+        except FileNotFoundError:
+            MainWindow.PathWarning(window)
+            return
+        try:
+            with  open(window.savePath.text(), 'w') as savefile:
+                yaml.Dumper.ignore_aliases = lambda *args: True
+                yaml.dump_all(data, savefile)
+        except FileNotFoundError:
+            MainWindow.PathWarning(window)
+
 
 
 
